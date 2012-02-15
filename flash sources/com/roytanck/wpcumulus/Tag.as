@@ -31,6 +31,9 @@ package com.roytanck.wpcumulus
 	import flash.net.URLRequest;
 	import flash.display.Graphics;
 	import flash.geom.ColorTransform;
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.filters.BlurFilter;
 	
 	public class Tag extends Sprite {
 		
@@ -55,27 +58,36 @@ package com.roytanck.wpcumulus
 			_tf.selectable = false;
 			// set styles
 			var format:TextFormat = new TextFormat();
-			format.font = "Arial";
+			format.font = "微软雅黑, Arial, 黑体";
 			format.bold = true;
 			format.color = color;
-			format.size = 2 * getNumberFromString( node["@style"] );
+			format.size = 5 * getNumberFromString( node["@style"] );
 			_tf.defaultTextFormat = format;
-			_tf.embedFonts = true;
+			//_tf.embedFonts = true;
 			// set text
 			_tf.text = node;
-			addChild(_tf);
+			_tf.filters = [new BlurFilter(5, 5, 1)];
+			
+			var bitmap:Bitmap = new Bitmap(null, "auto", true);
+			var bitmapData:BitmapData = new BitmapData(_tf.width, _tf.height, true, color);
+			bitmapData.draw(_tf);
+			bitmap.bitmapData = bitmapData;
+			bitmap.scaleX = 0.3;
+			bitmap.scaleY = 0.3;
+
+			addChild(bitmap);
 			// scale and add
-			_tf.x = -this.width / 2;
-			_tf.y = -this.height / 2;
+			bitmap.x = -this.width / 2;
+			bitmap.y = -this.height / 2;
 			// create the back
 			_back = new Sprite();
 			_back.graphics.beginFill( _hicolor, 0 );
 			_back.graphics.lineStyle( 0, _hicolor );
-			_back.graphics.drawRect( 0, 0, _tf.textWidth+20, _tf.textHeight+5 );
+			_back.graphics.drawRect( 0, 0, bitmap.width, bitmap.height );
 			_back.graphics.endFill();
 			addChildAt( _back, 0 );
-			_back.x = -( _tf.textWidth/2 ) - 10;
-			_back.y = -( _tf.textHeight/2 ) - 2;
+			_back.x = -( bitmap.width/2 );
+			_back.y = -( bitmap.height/2 );
 			_back.visible = false;
 			// check for http links only
 			if( _node["@href"].substr(0,4).toLowerCase() == "http" ){
