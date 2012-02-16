@@ -27,13 +27,15 @@ package com.roytanck.wpcumulus
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
 	import flash.events.MouseEvent;
-	import flash.net.navigateToURL;
 	import flash.net.URLRequest;
 	import flash.display.Graphics;
 	import flash.geom.ColorTransform;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.filters.BlurFilter;
+	import flash.system.System;
+	import flash.utils.escapeMultiByte;
+	import flash.external.ExternalInterface;
 	
 	public class Tag extends Sprite {
 		
@@ -48,6 +50,8 @@ package com.roytanck.wpcumulus
 		private var _tf:TextField;
 		
 		public function Tag( node:XML, color:Number, hicolor:Number ){
+			System.useCodePage = false;
+			
 			_node = node;
 			_color = color;
 			_hicolor = hicolor;
@@ -58,7 +62,7 @@ package com.roytanck.wpcumulus
 			_tf.selectable = false;
 			// set styles
 			var format:TextFormat = new TextFormat();
-			format.font = "微软雅黑, Arial, 黑体";
+			format.font = "微软雅黑, 宋体, Arial, 黑体";
 			format.bold = true;
 			format.color = color;
 			format.size = 5 * getNumberFromString( node["@style"] );
@@ -89,17 +93,16 @@ package com.roytanck.wpcumulus
 			_back.x = -( bitmap.width/2 );
 			_back.y = -( bitmap.height/2 );
 			_back.visible = false;
-			// check for http links only
-			if( _node["@href"].substr(0,4).toLowerCase() == "http" ){
-				// force mouse cursor on rollover
-				this.mouseChildren = false;
-				this.buttonMode = true;
-				this.useHandCursor = true;
-				// events
-				this.addEventListener(MouseEvent.MOUSE_OUT, mouseOutHandler);
-				this.addEventListener(MouseEvent.MOUSE_OVER, mouseOverHandler);
-				this.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
-			}
+
+			// force mouse cursor on rollover
+			this.mouseChildren = false;
+			this.buttonMode = true;
+			this.useHandCursor = true;
+			// events
+			this.addEventListener(MouseEvent.MOUSE_OUT, mouseOutHandler);
+			this.addEventListener(MouseEvent.MOUSE_OVER, mouseOverHandler);
+			this.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
+
 		}
 		
 		private function mouseOverHandler( e:MouseEvent ):void {
@@ -115,9 +118,10 @@ package com.roytanck.wpcumulus
 		}
 		
 		private function mouseUpHandler( e:MouseEvent ):void {
-			var request:URLRequest = new URLRequest( _node["@href"] );
-			var target:String = _node["@target"] == undefined ? "_self" : _node["@target"];
-			navigateToURL( request, target );
+			var action = _node["@action"];
+			if( action != null ) {
+				ExternalInterface.call(action); 
+			}
 		}
 
 		private function getNumberFromString( s:String ):Number {
