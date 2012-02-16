@@ -1,0 +1,26 @@
+<html>
+<head>
+<script type="text/javascript" src="swfobject.js"></script>
+</head>
+<body>
+<div id="flashcontent"></div>
+<script type="text/javascript">
+	var so = new SWFObject("tagcloud.swf", "tagcloud", "300", "200", "7",
+			"#336699");
+	so.addParam("wmode", "transparent");
+	so.addVariable("mode", "tags");
+	so.addVariable("distr", "true");
+	so.addVariable("tcolor", "0x0000ff");
+	so.addVariable("hicolor", "0xff0000");
+	var tagxml = "<tags>";
+	for ( var i = 15; i <= 30; i++) {
+		tagxml += "<a action='alert(" + i + ")' style='" + i + "'>" + i
+				+ "</a>"
+	}
+	tagxml += "</tags>";
+	so.addVariable("tagcloud", tagxml);
+	so.write("flashcontent");
+</script>
+</body>
+</html>
+
